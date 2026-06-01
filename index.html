@@ -3,7 +3,38 @@
 <head>
 <meta charset="UTF-8" />
 <title>Sungmin Jung — Selected Works, 2022–2026</title>
-<meta name="viewport" content="width=1280" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+<!-- SEO + social share -->
+<meta name="description" content="Folio № 02 — the selected architectural works of Sungmin Jung, 2022–2026. Academic studio and professional practice, between South Korea and California." />
+<meta name="author" content="Sungmin Jung" />
+<meta name="theme-color" content="#F9F8F6" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#1A1A1A" media="(prefers-color-scheme: dark)" />
+
+<!-- Open Graph (LinkedIn / KakaoTalk / iMessage preview) -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Sungmin Jung — Selected Works, 2022–2026" />
+<meta property="og:description" content="A warm editorial monograph of selected architectural works, between South Korea and California." />
+<meta property="og:image" content="[INSERT_IMAGE_HERE]" />
+<meta property="og:locale" content="en_US" />
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Sungmin Jung — Selected Works, 2022–2026" />
+<meta name="twitter:description" content="A warm editorial monograph of selected architectural works, between South Korea and California." />
+<meta name="twitter:image" content="[INSERT_IMAGE_HERE]" />
+
+<!-- Favicon — inline SJ monogram (no external file needed) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%231A1A1C'/><text x='50%25' y='52%25' font-family='Georgia,serif' font-size='30' fill='%23F9F8F6' text-anchor='middle' dominant-baseline='central'>SJ</text></svg>" />
+
+<!-- Apply saved theme before first paint to avoid a flash of the wrong mode -->
+<script>
+  try{
+    if(localStorage.getItem('sj-folio-mode') === 'dark'){
+      document.documentElement.classList.add('dark');
+    }
+  }catch(e){}
+</script>
 
 <!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -31,6 +62,33 @@
     --accent:       #C44A2C;     /* a single warm rust accent for emphasis */
   }
 
+  /* ============================================================
+     DARK THEME — "Screen / Night" mode
+     A warm, charcoal-based dark palette (never pure #000) that keeps
+     the editorial warmth of the paper edition after dusk.
+     ============================================================ */
+  html.dark{
+    --paper:        #1A1A1A;     /* warm near-black ground */
+    --paper-2:      #222222;
+    --paper-3:      #2A2A2A;     /* image / panel ground */
+    --ink:          #F9F8F6;     /* warm paper-white text */
+    --charcoal:     #E8E5DD;
+    --slate:        #A8A8AB;     /* muted captions, metadata */
+    --slate-2:      #6B6B6E;     /* dimmest readable text */
+    --rule:         rgba(249,248,246,0.12);
+    --rule-strong:  rgba(249,248,246,0.24);
+    --accent:       #E2583E;     /* brighter rust for dark contrast */
+  }
+  /* invert the subtle paper grain so it reads as a faint light tooth on dark */
+  html.dark body{
+    background-image:
+      radial-gradient(rgba(249,248,246,0.022) 1px, transparent 1px);
+  }
+  /* the sticky modal header fades to a literal light tint by default; rebase it on dark */
+  html.dark .proj-modal-header{
+    background: linear-gradient(to bottom, var(--paper) 70%, rgba(26,26,26,0.7));
+  }
+
   /* base */
   html,body{
     background: var(--paper);
@@ -42,6 +100,8 @@
     letter-spacing: -0.005em;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.4s ease, color 0.4s ease;
+    scroll-behavior: smooth;
   }
   body{
     /* very subtle warm paper grain */
@@ -69,18 +129,51 @@
   #loader{
     position: fixed; inset: 0; z-index: 200;
     background: var(--paper);
-    display: flex; align-items: flex-end; justify-content: space-between;
-    padding: 32px 48px;
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    /* cinematic "title card" — text centred both axes */
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 48px;
+    transition: opacity 0.7s ease, transform 0.7s ease;
   }
   #loader.done{ opacity:0; pointer-events:none; transform: translateY(-2%); }
+
+  /* centred title-card block */
+  #loader .loader-card{
+    display: flex; flex-direction: column; align-items: center;
+    gap: 20px;
+    animation: loaderCardIn 1.2s cubic-bezier(.2,.7,.2,1) both;
+  }
+  #loader .loader-eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; letter-spacing: 0.30em; text-transform: uppercase;
+    color: var(--slate);
+  }
+  #loader .loader-title{
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: clamp(56px, 9vw, 132px);
+    line-height: 0.94;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+  }
+  #loader .loader-sub{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--slate);
+  }
+  @keyframes loaderCardIn{
+    from{ opacity: 0; transform: translateY(12px); filter: blur(6px); }
+    to  { opacity: 1; transform: none;            filter: blur(0); }
+  }
+
   #loader .bar{
     position: absolute; bottom: 0; left: 0; right: 0;
     height: 0.5px; background: var(--rule);
   }
   #loader .bar-fill{
     height: 100%; width: 0; background: var(--ink);
-    animation: loadBar 1.1s cubic-bezier(.7,0,.3,1) forwards;
+    /* fill across the dwell so the meter resolves as the card settles */
+    animation: loadBar 1s cubic-bezier(.7,0,.3,1) forwards;
   }
   @keyframes loadBar{ to{ width: 100%; } }
 
@@ -127,6 +220,34 @@
   .spy-item.active .tick{ width: 36px; }
   .spy-item.active .label{ opacity: 1; max-width: 220px; }
 
+  /* --- chapter grouping: rail reads as a two-part table of contents --- */
+  .spy-item.spy-chapter{
+    padding-top: 18px;            /* extra air above each chapter heading */
+    color: var(--slate);
+  }
+  .spy-item.spy-chapter .num{
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    color: var(--ink);
+  }
+  .spy-item.spy-chapter .tick{
+    width: 22px;                  /* heavier mark than a project tick */
+    background: var(--ink);
+  }
+  /* chapter label stays faintly visible so the structure is always legible */
+  .spy-item.spy-chapter .label{
+    opacity: 0.55;
+    max-width: 220px;
+    font-weight: 600;
+  }
+  .spy-item.spy-chapter.active{ color: var(--ink); }
+  .spy-item.spy-chapter.active .label{ opacity: 1; }
+
+  /* child projects indent inward from the rail edge */
+  .spy-item.spy-child{ margin-right: 16px; }
+  .spy-item.spy-child .tick{ width: 7px; }
+  .spy-item.spy-child.active .tick{ width: 28px; }
+
   /* ============================================================
      TOP BAR
      ============================================================ */
@@ -149,6 +270,33 @@
     box-shadow: 0 0 0 3px rgba(74,222,128,0.18);
     vertical-align: middle;
   }
+
+  /* mode toggle — reads as another instrument on the masthead status line */
+  .mode-toggle{
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 11px 4px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--slate);
+    background: transparent;
+    border: 0.5px solid var(--rule-strong);
+    border-radius: 999px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .mode-toggle:hover{ color: var(--ink); border-color: var(--ink); }
+  .mode-toggle .mode-key{ color: var(--slate-2); }
+  .mode-toggle .mode-label{ color: var(--ink); }
+  .mode-toggle .mode-glyph{
+    font-size: 12px; line-height: 1;
+    transform: translateY(0.5px);
+    transition: transform 0.5s cubic-bezier(.2,.7,.2,1);
+  }
+  .mode-toggle:hover .mode-glyph{ transform: translateY(0.5px) rotate(40deg); }
+  .mode-toggle:focus-visible{ outline: 0.5px solid var(--accent); outline-offset: 3px; }
 
   /* ============================================================
      VERTICAL MARGIN ANNOTATIONS
@@ -173,12 +321,14 @@
     background: var(--paper-3);
   }
   .lens::after{
-    /* paper texture overlay that slowly burns off on hover */
+    /* a restrained DARK vignette + base shadow — never washes the image white.
+       It honours raw wood models & dark renders, and lifts only slightly on hover
+       so captions / view-tabs stay legible without bleaching the plate. */
     content: '';
     position: absolute; inset: 0;
     background:
-      radial-gradient(circle at 50% 50%, rgba(249,248,246,0) 30%, rgba(249,248,246,0.55) 100%),
-      linear-gradient(to bottom, rgba(249,248,246,0.18), rgba(249,248,246,0.08));
+      linear-gradient(to top, rgba(26,26,28,0.30) 0%, rgba(26,26,28,0) 40%),
+      radial-gradient(125% 125% at 50% 48%, rgba(26,26,28,0) 60%, rgba(26,26,28,0.18) 100%);
     pointer-events: none;
     transition: opacity 0.9s cubic-bezier(.2,.7,.2,1);
     opacity: 1;
@@ -187,14 +337,17 @@
     width: 100%; height: 100%;
     object-fit: cover;
     object-position: center;
-    filter: saturate(0.55) contrast(0.92) brightness(1.02);
-    transform: scale(1.04);
+    /* DEFAULT: a sophisticated near-grayscale at full luminosity (no whitening),
+       with a touch of extra contrast to keep physical textures crisp. */
+    filter: grayscale(0.62) contrast(1.04) brightness(0.97) saturate(0.9);
+    transform: scale(1.045);
     transition: filter 1.1s cubic-bezier(.2,.7,.2,1), transform 1.4s cubic-bezier(.2,.7,.2,1);
     will-change: transform, filter;
   }
-  .lens:hover::after{ opacity: 0; }
+  /* HOVER: bloom into full, vibrant colour with a gentle contrast pop + settle. */
+  .lens:hover::after{ opacity: 0.4; }
   .lens:hover img{
-    filter: saturate(1) contrast(1) brightness(1);
+    filter: grayscale(0) contrast(1.05) brightness(1) saturate(1.04);
     transform: scale(1.0);
   }
 
@@ -321,6 +474,68 @@
     color: var(--slate);
   }
 
+  /* ============================================================
+     HERO TRAJECTORY — typographic timeline (monograph appendix)
+     Strictly 4-column tabular type: Dates | Institution | Role | Location.
+     No graphical timeline (no connector lines, no dots) — alignment only.
+     ============================================================ */
+  .trajectory{ display: block; }
+  .trajectory-row{
+    display: grid;
+    grid-template-columns: 1.45fr 1.75fr 1.4fr 1.55fr;
+    gap: 18px;
+    align-items: baseline;
+    padding: 9px 0;
+    border-bottom: 0.5px solid var(--rule);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    color: var(--slate);
+  }
+  .trajectory-head{
+    padding: 0 0 10px;
+    border-bottom: 0.5px solid var(--rule-strong);
+  }
+  .trajectory-row .t-date{ color: var(--slate); white-space: nowrap; }
+  .trajectory-row .t-inst{ color: var(--ink); }
+
+  /* ============================================================
+     CHAPTER DIVIDER — editorial half-title page between chapters
+     Full-bleed sibling of the project sections (breaks all column
+     constraints). Left-axis aligned to echo the monograph margin.
+     ============================================================ */
+  .chapter-divider{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15vh 180px;            /* massive vertical air = a felt pause */
+    border-top: 0.5px solid var(--rule);
+  }
+  .chapter-divider .chapter-eyebrow{
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin-bottom: 30px;
+  }
+  .chapter-divider .chapter-title{
+    font-family: 'Inter', sans-serif;
+    font-weight: 200;
+    font-size: clamp(72px, 11vw, 168px);
+    line-height: 0.90;
+    letter-spacing: -0.05em;
+    color: var(--ink);
+  }
+  .chapter-divider .chapter-note{
+    margin-top: 34px;
+    max-width: 44ch;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--charcoal);
+  }
+
   /* edge bleed image */
   .bleed-right{ margin-right: -48px; }
   .bleed-left { margin-left: -48px; }
@@ -401,7 +616,9 @@
 
   .proj-modal-panel{
     position: absolute; right: 0; top: 0; bottom: 0;
-    width: min(88vw, 1320px);
+    /* ~69% on every wide screen (≈1320px @ 1080p, ≈1766px @ 1440p),
+       capped at 1800px so true ultrawide keeps a strong left matte. */
+    width: min(69vw, 1800px);
     background: var(--paper);
     transform: translateX(100%);
     transition: transform 0.75s cubic-bezier(.2,.7,.2,1);
@@ -585,6 +802,161 @@
     transition: color 0.3s ease;
   }
   .proj-modal-close-secondary:hover{ color: var(--accent); }
+
+  /* ============================================================
+     LIGHTBOX — full-screen "detail inspector" for gallery plates
+     Sits above the project modal (z 100) and loader (z 200).
+     ============================================================ */
+  /* any real image dropped into a gallery plate becomes zoomable */
+  .proj-modal-panel .plate-frame img,
+  .proj-modal-panel img{ cursor: zoom-in; }
+
+  .lightbox{
+    position: fixed; inset: 0; z-index: 300;
+    display: flex; align-items: center; justify-content: center;
+    background: #000;                       /* pure black, per spec */
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    cursor: zoom-out;                        /* click the matte to dismiss */
+  }
+  .lightbox.open{ opacity: 1; visibility: visible; }
+
+  .lightbox img{
+    max-width: 96vw; max-height: 92vh;
+    width: auto; height: auto;
+    object-fit: contain;
+    transform: scale(0.985);
+    transition: transform 0.45s cubic-bezier(.2,.7,.2,1);
+    box-shadow: 0 30px 90px rgba(0,0,0,0.6);
+    cursor: default;                         /* image area itself is inert */
+  }
+  .lightbox.open img{ transform: scale(1); }
+
+  .lightbox-close{
+    position: fixed; top: 24px; right: 28px;
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 10px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #F9F8F6; background: transparent;
+    border: 0.5px solid rgba(249,248,246,0.40);
+    cursor: pointer;
+    transition: border-color 0.3s ease, color 0.3s ease;
+  }
+  .lightbox-close:hover{ border-color: #F9F8F6; }
+  .lightbox-close .x{ font-size: 13px; line-height: 1; }
+
+  .lightbox-caption{
+    position: fixed; bottom: 22px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(249,248,246,0.6);
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     GALLERY IMAGE PIPELINE — lazy-load + blur-up progressive reveal
+     A real <img.plate-img> overlays the watermark; while it decodes a
+     skeleton shimmer shows; on load it resolves from blurred → sharp.
+     Invalid/placeholder paths fail gracefully back to the watermark.
+     ============================================================ */
+  .plate-frame img.plate-img{
+    position: absolute; inset: 0; z-index: 1;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+    opacity: 0;
+    filter: blur(14px);
+    transform: scale(1.06);
+    transition: opacity 0.7s ease,
+                filter 0.9s cubic-bezier(.2,.7,.2,1),
+                transform 1.1s cubic-bezier(.2,.7,.2,1);
+  }
+  .plate-frame img.plate-img.is-loaded{
+    opacity: 1; filter: blur(0); transform: scale(1);
+  }
+  /* skeleton placeholder while the plate image is in flight */
+  .plate-frame.is-loading::before{
+    content: '';
+    position: absolute; inset: 0; z-index: 0;
+    background: linear-gradient(100deg,
+      var(--paper-3) 0%, var(--paper-2) 45%, var(--paper-3) 80%);
+    background-size: 220% 100%;
+  }
+  /* only animate the shimmer while a modal is actually open (saves CPU) */
+  .proj-modal.open .plate-frame.is-loading::before{
+    animation: plateShimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes plateShimmer{
+    from{ background-position: 160% 0; }
+    to  { background-position: -60% 0; }
+  }
+
+  /* ============================================================
+     MOBILE / TABLET LAYER — single additive override pass.
+     Desktop styles above are untouched; everything here is scoped
+     to <= 820px. Goal: nothing breaks, everything stays readable.
+     ============================================================ */
+  @media (max-width: 820px){
+
+    /* --- global rhythm: kill the huge fixed side padding --- */
+    .section{
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+      padding-top: 76px !important;
+      padding-bottom: 76px !important;
+    }
+    #hero{ padding-top: 116px !important; padding-bottom: 56px !important; }
+
+    /* collapse EVERY 12-col grid to a single stacked column */
+    .grid.grid-cols-12{ grid-template-columns: 1fr !important; gap: 28px !important; }
+    [class*="col-span-"], [class*="col-start-"]{ grid-column: auto !important; }
+    .grid-cols-4{ grid-template-columns: 1fr 1fr !important; }
+
+    /* hide desktop-only furniture that clutters a phone */
+    #scrollspy{ display: none !important; }
+    .annotate-v{ display: none !important; }
+    .bleed-left{ margin-left: 0 !important; }
+    .bleed-right{ margin-right: 0 !important; }
+
+    /* --- top bar: keep only identity + mode toggle + index --- */
+    .topbar{ padding: 13px 16px !important; }
+    .topbar .gap-10{ gap: 14px !important; }
+    #clock{ display: none !important; }
+    .topbar span:has(> .dot){ display: none !important; }
+    .mode-toggle .mode-key{ display: none !important; }
+
+    /* --- tame the oversized display type (inline styles → need !important) --- */
+    #hero h1{ font-size: clamp(56px, 16vw, 92px) !important; line-height: 0.95 !important; }
+    .section h2[style]{ font-size: clamp(38px, 10vw, 58px) !important; }
+    .chapter-divider .chapter-title{ font-size: clamp(48px, 13vw, 72px) !important; }
+    .chapter-divider{ padding: 9vh 20px !important; }
+    footer .whitespace-nowrap{ font-size: 46px !important; }
+
+    /* --- hero typographic timeline: 2-up wrap instead of 4 columns --- */
+    .trajectory-row{ grid-template-columns: 1fr 1fr !important; gap: 4px 14px !important; }
+
+    /* --- index / appendix: keep the dense table, make it swipeable --- */
+    #index-archive .col-span-10{ overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #index-archive .idx-head,
+    #index-archive .idx-row{ min-width: 560px; }
+
+    /* --- project gallery modal: full-width sheet, tighter padding --- */
+    .proj-modal-panel{ width: 100% !important; }
+    .proj-modal-header{ padding: 16px 20px !important; }
+    .proj-modal-body{ padding: 40px 20px 56px !important; }
+    .proj-modal-lede{ margin-bottom: 56px !important; }
+    .proj-modal-lede p{ font-size: 15px !important; }
+    .plate-section{ margin-bottom: 56px !important; }
+    .plate-section-header{ grid-template-columns: 1fr !important; gap: 8px !important; }
+    .plate-section-count{ text-align: left !important; }
+    .plate-grid{ grid-template-columns: 1fr !important; gap: 20px !important; }
+    .plate-wide{ grid-column: auto !important; }
+    .plate-section-title{ font-size: 26px !important; }
+
+    /* full-bleed Margin Studies section uses its own inner padding utilities */
+    #proj-4 > div{ padding-left: 20px !important; padding-right: 20px !important; }
+  }
 </style>
 </head>
 
@@ -594,13 +966,10 @@
      LOADER
      ============================================================ -->
 <div id="loader">
-  <div class="font-mono text-[11px] tracking-[0.18em] uppercase" style="color:var(--slate)">
-    <div>Sungmin Jung</div>
-    <div style="color:var(--ink)">Selected Works, 2024–2026</div>
-  </div>
-  <div class="font-mono text-[11px] tracking-[0.18em] uppercase" style="color:var(--slate)">
-    <div class="text-right">Edition 02</div>
-    <div class="text-right" style="color:var(--ink)">Loading folio…</div>
+  <div class="loader-card">
+    <div class="loader-eyebrow">Edition 02 · Folio of Selected Works</div>
+    <div class="loader-title">Sungmin&nbsp;Jung</div>
+    <div class="loader-sub">Selected Works · 2022 — 2026</div>
   </div>
   <div class="bar"><div class="bar-fill"></div></div>
 </div>
@@ -616,6 +985,12 @@
   <div class="flex items-center gap-10">
     <span><span class="dot"></span>In studio · Los Angeles</span>
     <span class="ident" id="clock">—</span>
+    <button id="mode-toggle" class="mode-toggle" type="button" aria-pressed="false"
+            aria-label="Toggle day or night mode" title="Toggle day / night edition">
+      <span class="mode-glyph" aria-hidden="true">☼</span>
+      <span class="mode-key">Mode:</span>
+      <span class="mode-label">Day</span>
+    </button>
     <a href="#contact" class="ident under">Index ↓</a>
   </div>
 </header>
@@ -630,26 +1005,38 @@
   <a class="spy-item" data-target="prologue">
     <span class="num">01</span><span class="tick"></span><span class="label">Prologue</span>
   </a>
-  <a class="spy-item" data-target="proj-1">
+  <!-- Part I — Academic -->
+  <a class="spy-item spy-chapter" data-target="chapter-academic">
+    <span class="num">I</span><span class="tick"></span><span class="label">Academic Works</span>
+  </a>
+  <a class="spy-item spy-child" data-target="proj-1">
     <span class="num">02</span><span class="tick"></span><span class="label">The Last Archive</span>
   </a>
-  <a class="spy-item" data-target="proj-2">
+  <a class="spy-item spy-child" data-target="proj-2">
     <span class="num">03</span><span class="tick"></span><span class="label">Off Grid</span>
   </a>
-  <a class="spy-item" data-target="proj-3">
+  <a class="spy-item spy-child" data-target="proj-3">
     <span class="num">04</span><span class="tick"></span><span class="label">Urban Stitch</span>
   </a>
-  <a class="spy-item" data-target="proj-4">
+
+  <!-- Part II — Professional -->
+  <a class="spy-item spy-chapter" data-target="chapter-professional">
+    <span class="num">II</span><span class="tick"></span><span class="label">Professional Works</span>
+  </a>
+  <a class="spy-item spy-child" data-target="proj-4">
     <span class="num">05</span><span class="tick"></span><span class="label">Margin Studies</span>
   </a>
-  <a class="spy-item" data-target="proj-5">
+  <a class="spy-item spy-child" data-target="proj-5">
     <span class="num">06</span><span class="tick"></span><span class="label">House Repair, Uljin</span>
   </a>
+  <a class="spy-item" data-target="index-archive">
+    <span class="num">07</span><span class="tick"></span><span class="label">Index · Appendix</span>
+  </a>
   <a class="spy-item" data-target="biography">
-    <span class="num">07</span><span class="tick"></span><span class="label">Biography</span>
+    <span class="num">08</span><span class="tick"></span><span class="label">Biography</span>
   </a>
   <a class="spy-item" data-target="contact">
-    <span class="num">08</span><span class="tick"></span><span class="label">Contact</span>
+    <span class="num">09</span><span class="tick"></span><span class="label">Contact</span>
   </a>
 </nav>
 
@@ -680,51 +1067,47 @@
     <span style="font-weight:700;">Jung.</span>
   </h1>
 
-  <!-- subtitle row -->
-  <div class="grid grid-cols-12 gap-10 mt-24">
+  <!-- subtitle row — bio paragraph (left) merged with the typographic trajectory (right) -->
+  <div class="grid grid-cols-12 gap-10 mt-24 items-start">
     <div class="col-span-5 reveal reveal-delay-1">
       <p class="font-display text-[20px] leading-[1.25]" style="font-weight:300; color:var(--charcoal);">
         Hellllllllooo World, this is my folio of selected works from the past four years. It's a mix of academic projects, built work, and a few things in between. Each project is a sketch of a position rather than a finished claim, and together they trace the arc of my architectural journey so far. I trained as an architect in Korea and continue to do so in California, and between those two coasts, the work attempts the same quiet thing: to find a clear geometry that can carry a building, and a clear story that can carry the geometry. Where the script is heavy, I try to make the form light. Where the form is severe, I try to make the room generous. Thanks for flipping through.
       </p>
     </div>
-    <div class="col-span-3 col-start-9 reveal reveal-delay-2">
-      <div class="smallcaps mb-3">In residence at</div>
-      <div class="font-display text-[18px]" style="font-weight:500;">
-        Southern California<br/>Institute of Architecture<br/>
-        <span class="font-mono text-[12px]" style="color:var(--slate)">M.Arch II · 2025–2027</span>
+
+    <!-- TYPOGRAPHIC TIMELINE — Dates | Institution | Role | Location -->
+    <div class="col-span-6 col-start-7 reveal reveal-delay-2">
+      <div class="flex items-baseline justify-between rule-bottom pb-3 mb-1">
+        <div class="smallcaps">Trajectory · Uninterrupted</div>
+        <div class="font-mono text-[11px] uppercase tracking-[0.16em]" style="color:var(--slate);">2017 — 2027 · KR → US</div>
       </div>
-    </div>
-  </div>
 
-  <!-- IDENTITY PILLARS — SCI-Arc / DS Meta / Haeahn -->
-  <div class="grid grid-cols-12 gap-10 mt-32 rule-top pt-10 reveal reveal-delay-3">
-    <div class="col-span-1 smallcaps">Practice<br/>Pillars</div>
-
-    <div class="col-span-3 col-start-3 pillar">
-      <div class="smallcaps mb-2">i.</div>
-      <div class="font-display text-[28px]" style="font-weight:600; line-height:1.1;">SCI-Arc</div>
-      <div class="font-mono text-[11px] mt-2 uppercase tracking-[0.1em]" style="color:var(--slate)">M.Arch II · 2025—2027</div>
-      <p class="text-[15px] mt-3" style="color:var(--charcoal); line-height:1.55;">
-        Admissions Merit Scholarship, Special Selection. Researching the parametric image as a generator of mass, not skin.
-      </p>
-    </div>
-
-    <div class="col-span-3 col-start-7 pillar">
-      <div class="smallcaps mb-2">ii.</div>
-      <div class="font-display text-[28px]" style="font-weight:600; line-height:1.1;">DS&nbsp;Meta</div>
-      <div class="font-mono text-[11px] mt-2 uppercase tracking-[0.1em]" style="color:var(--slate)">Designer · 2023–2024</div>
-      <p class="text-[15px] mt-3" style="color:var(--charcoal); line-height:1.55;">
-        Bellflower, CA. Mid-rise typology, façade rationalization, and Grasshopper-driven panel optimization for built work.
-      </p>
-    </div>
-
-    <div class="col-span-3 col-start-10 pillar">
-      <div class="smallcaps mb-2">iii.</div>
-      <div class="font-display text-[28px]" style="font-weight:600; line-height:1.1;">Haeahn</div>
-      <div class="font-mono text-[11px] mt-2 uppercase tracking-[0.1em]" style="color:var(--slate)">Intern · 2022</div>
-      <p class="text-[15px] mt-3" style="color:var(--charcoal); line-height:1.55;">
-        Seoul. Civic-scale documentation and the discipline of large-team coordination on production drawings.
-      </p>
+      <div class="trajectory">
+        <div class="trajectory-row trajectory-head smallcaps">
+          <div>Dates</div><div>Institution</div><div>Role</div><div>Location</div>
+        </div>
+        <div class="trajectory-row">
+          <div class="t-date">2017—2019</div><div class="t-inst">Republic of Korea Army</div><div>Military Service</div><div>South Korea</div>
+        </div>
+        <div class="trajectory-row">
+          <div class="t-date">2017—2024</div><div class="t-inst">Kyungil Univ.</div><div>B.Arch</div><div>South Korea</div>
+        </div>
+        <div class="trajectory-row">
+          <div class="t-date">2022</div><div class="t-inst">Haeahn Architecture</div><div>Design Intern</div><div>Seoul, KR</div>
+        </div>
+        <div class="trajectory-row">
+          <div class="t-date">2022—2023</div><div class="t-inst">Research Assistant</div><div>Margin Studies</div><div>Seoul, KR</div>
+        </div>
+        <div class="trajectory-row">
+          <div class="t-date">2023—2024</div><div class="t-inst">DS Meta</div><div>Design Intern</div><div>Bellflower, CA, US</div>
+        </div>
+        <div class="trajectory-row">
+          <div class="t-date">2025—2027</div><div class="t-inst">SCI-Arc</div><div>M.Arch II</div><div>Los Angeles, CA, US</div>
+        </div>
+        <div class="trajectory-row">
+          <div class="t-date">2026 (May—Aug)</div><div class="t-inst">DS Meta</div><div>Design Intern</div><div>Bellflower, CA, US</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -761,7 +1144,19 @@
 
 
 <!-- ============================================================
-     PROJECT 02 — VERTICAL HARBOR (Future Ideas Busan)
+     CHAPTER DIVIDER — Part I · Academic Works
+     ============================================================ -->
+<div id="chapter-academic" class="chapter-divider reveal">
+  <span class="chapter-eyebrow">[ Part I ] · Studio &amp; Thesis</span>
+  <h2 class="chapter-title">Academic<br/>Works.</h2>
+  <p class="chapter-note">
+    Speculative studio and thesis projects — where the brief is a hypothesis and the drawing is left to argue a position.
+  </p>
+</div>
+
+
+<!-- ============================================================
+     PROJECT 01 — 2GBX (Future Ideas Busan)
      Layout: large image LEFT, bleeds left edge. Text right.
      ============================================================ -->
 <section id="proj-1" class="section relative" style="padding: 80px 180px 200px;">
@@ -770,14 +1165,15 @@
     <!-- vertical metadata, far left margin -->
     <div class="col-span-1">
       <div class="annotate-v parallax" data-speed="0.06" style="margin-left:-20px; margin-top: 60px;">
-        Project № 02 · 2022 · Busan, KR · Speculative Civic · 38,000m² · 3rd Prize
+        Project № 01 · 2026 · New York, NY · infrastructural · 38,000m² · 3rd Prize
       </div>
     </div>
 
     <!-- big image, bleeding left -->
     <div class="col-span-7 reveal">
-      <div class="lens bleed-left parallax" data-speed="0.08" style="aspect-ratio: 4 / 5;">
-        <img src="./image/01_The Last Archive/01_Thurmnail.png" alt="The Last Archive — Media Art Archive, Hudson Yards" />
+      <div class="lens bleed-left parallax" data-speed="0.08" style="aspect-ratio: 4 / 5;"
+           data-modal-target="project-01-modal" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Open project: The Last Archive">
+        <img src="./image/01_the_last_archive/01_thurmnail.jpg" alt="The Last Archive Thumbnail" class="w-full h-full object-cover object-center" />
         <!-- placeholder svg shown when image fails -->
         <svg class="placeholder absolute inset-0 w-full h-full" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" fill="none" stroke="rgba(26,26,28,0.35)" stroke-width="0.5">
           <rect x="120" y="80" width="160" height="380" />
@@ -789,6 +1185,7 @@
           <line x1="60" y1="465" x2="340" y2="465" stroke-dasharray="2 2"/>
           <text x="60" y="478" font-family="IBM Plex Mono" font-size="9" fill="rgba(26,26,28,0.55)">P-01 · THE LAST ARCHIVE · §A-A</text>
         </svg>
+        <span class="view-tab">Open project ↗</span>
       </div>
     </div>
 
@@ -805,7 +1202,7 @@
         <div class="smallcaps">Location</div><div style="color:var(--ink)">New York Hudson Yard, US</div>
         <div class="smallcaps">Year</div><div style="color:var(--ink)">2026. Jan - April</div>
         <div class="smallcaps">Program</div><div style="color:var(--ink)">Media Art Archive</div>
-        <div class="smallcaps">Instructer</div><div style="color:var(--ink)">Jackilin Bloom + Damjan Jovanovic + Elena Manferdini</div>
+        <div class="smallcaps">Instructor</div><div style="color:var(--ink)">Jackilin Bloom + Damjan Jovanovic + Elena Manferdini</div>
         <div class="smallcaps">Team Project</div><div style="color:var(--ink)">Sungmin Jung + Henry Glesson + Hyung Gu Han</div>
       </div>
 
@@ -872,28 +1269,40 @@
 
         <div class="plate-grid">
           <figure class="plate plate-wide">
-            <div class="plate-frame"><span class="plate-id-watermark">PLATE_01_A</span></div>
+            <div class="plate-frame">
+              <img class="plate-img" src="[INSERT_IMAGE_HERE]" alt="TBD" loading="lazy" decoding="async" />
+              <span class="plate-id-watermark">PLATE_01_A</span>
+            </div>
             <figcaption>
               <span class="plate-id">[PLATE_01_A]</span>
               <span class="plate-caption">Hudson façade · dusk · approach view</span>
             </figcaption>
           </figure>
           <figure class="plate">
-            <div class="plate-frame"><span class="plate-id-watermark">PLATE_01_B</span></div>
+            <div class="plate-frame">
+              <img class="plate-img" src="[INSERT_IMAGE_HERE]" alt="TBD" loading="lazy" decoding="async" />
+              <span class="plate-id-watermark">PLATE_01_B</span>
+            </div>
             <figcaption>
               <span class="plate-id">[PLATE_01_B]</span>
               <span class="plate-caption">High Line threshold · noon</span>
             </figcaption>
           </figure>
           <figure class="plate">
-            <div class="plate-frame"><span class="plate-id-watermark">PLATE_01_C</span></div>
+            <div class="plate-frame">
+              <img class="plate-img" src="[INSERT_IMAGE_HERE]" alt="TBD" loading="lazy" decoding="async" />
+              <span class="plate-id-watermark">PLATE_01_C</span>
+            </div>
             <figcaption>
               <span class="plate-id">[PLATE_01_C]</span>
               <span class="plate-caption">Coolant atrium · interior</span>
             </figcaption>
           </figure>
           <figure class="plate plate-wide">
-            <div class="plate-frame"><span class="plate-id-watermark">PLATE_01_D</span></div>
+            <div class="plate-frame">
+              <img class="plate-img" src="[INSERT_IMAGE_HERE]" alt="TBD" loading="lazy" decoding="async" />
+              <span class="plate-id-watermark">PLATE_01_D</span>
+            </div>
             <figcaption>
               <span class="plate-id">[PLATE_01_D]</span>
               <span class="plate-caption">River elevation · long view · 1:500</span>
@@ -980,7 +1389,7 @@
 
 
 <!-- ============================================================
-     PROJECT 03 — DS META TOWER STUDIES
+     PROJECT 02 — Off Grid (SCI-Arc)
      Layout: text LEFT, image RIGHT bleeding right.
      ============================================================ -->
 <section id="proj-2" class="section relative" style="padding: 80px 180px 200px;">
@@ -989,22 +1398,33 @@
     <!-- text column LEFT -->
     <div class="col-span-4 col-start-2 pt-12 reveal">
       <div class="font-mono text-[11px] uppercase tracking-[0.16em] mb-6" style="color:var(--slate);">
-        Project № 03
+        Project № 02
       </div>
       <h2 class="font-display tracking-tightest" style="font-weight:300; font-size:64px; line-height:0.96; color:var(--ink);">
-        Tower<br/>Studies, <span style="font-style:italic; font-weight:300;">DS Meta.</span>
+        Off Grid
       </h2>
 
       <div class="rule-top mt-10 pt-6 grid grid-cols-2 gap-y-3 font-mono text-[11px]" style="color:var(--slate);">
-        <div class="smallcaps">Location</div><div style="color:var(--ink)">Bellflower, CA</div>
-        <div class="smallcaps">Year</div><div style="color:var(--ink)">2023–2024</div>
-        <div class="smallcaps">Role</div><div style="color:var(--ink)">Designer · DS Meta</div>
-        <div class="smallcaps">Tools</div><div style="color:var(--ink)">Rhino · Grasshopper · Revit</div>
+        <div class="smallcaps">Location</div><div style="color:var(--ink)">Los Angeles, CA</div>
+        <div class="smallcaps">Year</div><div style="color:var(--ink)">2025. Sep - Dec</div>
+        <div class="smallcaps">Program</div><div style="color:var(--ink)">Artisan Work Place</div>
+        <div class="smallcaps">Instructor</div><div style="color:var(--ink)">Jenny Wu</div>
+        <div class="smallcaps">Team Project</div><div style="color:var(--ink)">Sungmin Jung + Andy Han + Kynck</div>
       </div>
 
       <p class="text-[14px] mt-8" style="color:var(--charcoal); line-height:1.65;">
         A year of mid-rise typological studies for a Southern California developer-architect. The studies organize themselves around façade rationalization — how a finite kit of panels can produce a wide range of elevations — and around floor-plate efficiency in the awkward 6-to-9-storey band where building code, parking, and pro-forma all argue at once.
       </p>
+
+      <div class="mt-8">
+        <a href="#project-02-modal"
+           class="proj-cta"
+           data-modal-target="project-02-modal"
+           aria-haspopup="dialog">
+          <span class="label"><span class="arrow">▸</span> Open Project</span>
+          <span class="meta">08 Plates · Drawing Gallery</span>
+        </a>
+      </div>
 
       <div class="rule-top mt-8 pt-4 font-mono text-[11px] flex items-center gap-3" style="color:var(--slate);">
         <span class="meter-dot"></span> 11 schemes · 4 progressed to DD
@@ -1013,8 +1433,9 @@
 
     <!-- big image bleeding right -->
     <div class="col-span-7 col-start-7 reveal reveal-delay-1">
-      <div class="lens bleed-right parallax" data-speed="0.10" style="aspect-ratio: 5 / 4;">
-        <img src="project2.jpg" alt="DS Meta — Tower Studies" />
+      <div class="lens bleed-right parallax" data-speed="0.10" style="aspect-ratio: 5 / 4;"
+           data-modal-target="project-02-modal" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Open project: Off Grid">
+        <img src="./image/02_off_grid/01_thurmnail.jpg" alt="Off Grid" />
         <svg class="placeholder absolute inset-0 w-full h-full" viewBox="0 0 500 400" preserveAspectRatio="xMidYMid slice" fill="none" stroke="rgba(26,26,28,0.35)" stroke-width="0.5">
           <g>
             <rect x="60" y="60" width="100" height="280" />
@@ -1040,7 +1461,97 @@
 
 
 <!-- ============================================================
-     PROJECT 04 — QUIET ROOMS (small interior project, centered)
+     PROJECT 02 — DRAWING GALLERY MODAL (Off Grid)
+     ============================================================ -->
+<div id="project-02-modal" class="proj-modal" role="dialog" aria-hidden="true" aria-labelledby="proj-02-modal-title">
+  <div class="proj-modal-backdrop" data-close></div>
+
+  <article class="proj-modal-panel">
+
+    <header class="proj-modal-header">
+      <div>
+        <div class="proj-modal-eyebrow">Folio № 02 · Project № 02 · Drawing Gallery</div>
+        <span id="proj-02-modal-title" class="proj-modal-title">Off Grid — Mid-rise Typology, Los Angeles</span>
+      </div>
+      <button class="proj-modal-close" data-close aria-label="Close gallery">
+        <span>Close</span>
+        <span class="x">✕</span>
+      </button>
+    </header>
+
+    <div class="proj-modal-body">
+
+      <div class="proj-modal-lede">
+        <div class="smallcaps">A note from the studio</div>
+        <p>
+          Eight plates from a year of typological studies. The work tests how a finite kit of façade panels can produce a wide range of elevations, and how a floor plate stays efficient in the awkward six-to-nine-storey band where code, parking, and pro-forma all argue at once.
+        </p>
+      </div>
+
+      <section class="plate-section">
+        <header class="plate-section-header">
+          <div class="plate-section-index">i. Typologies</div>
+          <h3 class="plate-section-title">Eleven schemes, one kit.</h3>
+          <div class="plate-section-count">04 plates · TIFF</div>
+        </header>
+        <div class="plate-grid">
+          <figure class="plate plate-wide">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_02_A</span></div>
+            <figcaption><span class="plate-id">[PLATE_02_A]</span><span class="plate-caption">Typological array · A–K · street elevation</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_02_B</span></div>
+            <figcaption><span class="plate-id">[PLATE_02_B]</span><span class="plate-caption">Scheme T-04 · corner condition</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_02_C</span></div>
+            <figcaption><span class="plate-id">[PLATE_02_C]</span><span class="plate-caption">Scheme T-09 · podium + tower</span></figcaption>
+          </figure>
+          <figure class="plate plate-wide">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_02_D</span></div>
+            <figcaption><span class="plate-id">[PLATE_02_D]</span><span class="plate-caption">Massing comparison · 1:500</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="plate-section">
+        <header class="plate-section-header">
+          <div class="plate-section-index">ii. Façade Kit</div>
+          <h3 class="plate-section-title">Panels that rationalize.</h3>
+          <div class="plate-section-count">04 plates · Grasshopper · GH</div>
+        </header>
+        <div class="plate-grid">
+          <figure class="plate">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_02_E</span></div>
+            <figcaption><span class="plate-id">[PLATE_02_E]</span><span class="plate-caption">Panel family · A–F · unitization</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_02_F</span></div>
+            <figcaption><span class="plate-id">[PLATE_02_F]</span><span class="plate-caption">Elevation logic · cluster diagram</span></figcaption>
+          </figure>
+          <figure class="plate plate-wide">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_02_G</span></div>
+            <figcaption><span class="plate-id">[PLATE_02_G]</span><span class="plate-caption">Floor-plate efficiency · 6–9 storeys</span></figcaption>
+          </figure>
+          <figure class="plate plate-wide">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_02_H</span></div>
+            <figcaption><span class="plate-id">[PLATE_02_H]</span><span class="plate-caption">Panel-to-elevation variation matrix</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <footer class="proj-modal-footer">
+        <span>End of plates · 08 of 08 · OFG-2025.12</span>
+        <button class="proj-modal-close-secondary" data-close>Return to folio ↩</button>
+      </footer>
+
+    </div>
+  </article>
+</div>
+
+
+<!-- ============================================================
+     PROJECT 03 — Urban stitch
      Layout: smaller centered image with a single line of body text.
      ============================================================ -->
 <section id="proj-3" class="section relative" style="padding: 120px 180px 240px;">
@@ -1049,21 +1560,41 @@
     <!-- vertical left -->
     <div class="col-span-1">
       <div class="annotate-v" style="margin-top:80px;">
-        Project № 04 · 2023 · Daegu, KR · Interior · 18 rooms
+        Project № 03 · 2023 · Los Angeles, CA · Pavilion · 18 rooms
       </div>
     </div>
 
     <!-- header text -->
     <div class="col-span-4 col-start-3 pt-8 reveal">
       <div class="font-mono text-[11px] uppercase tracking-[0.16em] mb-6" style="color:var(--slate);">
-        Project № 04
+        Project № 03
       </div>
       <h2 class="font-display tracking-tightest" style="font-weight:300; font-size:64px; line-height:0.96;">
-        Quiet<br/>Rooms.
+        Urban<br/>Stitch.
       </h2>
+
+      <div class="rule-top mt-10 pt-6 grid grid-cols-2 gap-y-3 font-mono text-[11px]" style="color:var(--slate);">
+        <div class="smallcaps">Location</div><div style="color:var(--ink)">Los Angeles, CA</div>
+        <div class="smallcaps">Year</div><div style="color:var(--ink)">2023</div>
+        <div class="smallcaps">Program</div><div style="color:var(--ink)">Single-Occupancy Rooms</div>
+        <div class="smallcaps">Instructor</div><div style="color:var(--ink)">TBD</div>
+        <div class="smallcaps">Team Project</div><div style="color:var(--ink)">Sungmin Jung (Single Author)</div>
+      </div>
+
       <p class="text-[14px] mt-8" style="color:var(--charcoal); line-height:1.65;">
         A study of eighteen single-occupancy rooms drawn at 1:20. The rooms argue that thickness — not area — is the variable that produces interior quiet, and that a room's character is mostly built into its walls before any furniture arrives.
       </p>
+
+      <div class="mt-8">
+        <a href="#project-03-modal"
+           class="proj-cta"
+           data-modal-target="project-03-modal"
+           aria-haspopup="dialog">
+          <span class="label"><span class="arrow">▸</span> Open Project</span>
+          <span class="meta">06 Plates · Drawing Gallery</span>
+        </a>
+      </div>
+
       <div class="rule-top mt-8 pt-4 font-mono text-[11px]" style="color:var(--slate);">
         <span class="smallcaps">Recognition</span> &nbsp;·&nbsp;
         <span style="color:var(--ink)">Special Selection · Gyeongsangbuk-do '23</span>
@@ -1072,8 +1603,9 @@
 
     <!-- centered medium image -->
     <div class="col-span-5 col-start-8 reveal reveal-delay-1">
-      <div class="lens parallax" data-speed="0.05" style="aspect-ratio: 3 / 4;">
-        <img src="project3.jpg" alt="Quiet Rooms — interior plan study" />
+      <div class="lens parallax" data-speed="0.05" style="aspect-ratio: 3 / 4;"
+           data-modal-target="project-03-modal" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Open project: Urban Stitch">
+        <img src="./image/03_urban_stitch/01_thurmnail.jpg" alt="Quiet Rooms — interior plan study" />
         <svg class="placeholder absolute inset-0 w-full h-full" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" fill="none" stroke="rgba(26,26,28,0.35)" stroke-width="0.5">
           <rect x="40" y="40" width="220" height="320" />
           <line x1="40" y1="120" x2="260" y2="120"/>
@@ -1091,6 +1623,100 @@
 
 
 <!-- ============================================================
+     PROJECT 03 — DRAWING GALLERY MODAL (Urban Stitch)
+     ============================================================ -->
+<div id="project-03-modal" class="proj-modal" role="dialog" aria-hidden="true" aria-labelledby="proj-03-modal-title">
+  <div class="proj-modal-backdrop" data-close></div>
+
+  <article class="proj-modal-panel">
+
+    <header class="proj-modal-header">
+      <div>
+        <div class="proj-modal-eyebrow">Folio № 02 · Project № 03 · Drawing Gallery</div>
+        <span id="proj-03-modal-title" class="proj-modal-title">Urban Stitch — Eighteen Single-Occupancy Rooms</span>
+      </div>
+      <button class="proj-modal-close" data-close aria-label="Close gallery">
+        <span>Close</span>
+        <span class="x">✕</span>
+      </button>
+    </header>
+
+    <div class="proj-modal-body">
+
+      <div class="proj-modal-lede">
+        <div class="smallcaps">A note from the author</div>
+        <p>
+          Six plates from an individual study of eighteen single-occupancy rooms drawn at 1:20. The rooms argue that thickness — not area — is the variable that produces interior quiet, and that a room's character is mostly built into its walls before any furniture arrives.
+        </p>
+      </div>
+
+      <section class="plate-section">
+        <header class="plate-section-header">
+          <div class="plate-section-index">i. Rooms</div>
+          <h3 class="plate-section-title">Eighteen, at 1:20.</h3>
+          <div class="plate-section-count">03 plates · Plan · 1:20</div>
+        </header>
+        <div class="plate-grid">
+          <figure class="plate plate-wide">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_03_A</span></div>
+            <figcaption><span class="plate-id">[PLATE_03_A]</span><span class="plate-caption">Room catalogue · 01–18 · plan</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_03_B</span></div>
+            <figcaption><span class="plate-id">[PLATE_03_B]</span><span class="plate-caption">Room 11 · plan · 1:20</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_03_C</span></div>
+            <figcaption><span class="plate-id">[PLATE_03_C]</span><span class="plate-caption">Room 06 · plan · 1:20</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="plate-section">
+        <header class="plate-section-header">
+          <div class="plate-section-index">ii. Thickness</div>
+          <h3 class="plate-section-title">Quiet, built into the wall.</h3>
+          <div class="plate-section-count">03 plates · Section · 1:10</div>
+        </header>
+        <div class="plate-grid">
+          <figure class="plate">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_03_D</span></div>
+            <figcaption><span class="plate-id">[PLATE_03_D]</span><span class="plate-caption">Wall thickness study · A</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_03_E</span></div>
+            <figcaption><span class="plate-id">[PLATE_03_E]</span><span class="plate-caption">Wall thickness study · B</span></figcaption>
+          </figure>
+          <figure class="plate plate-wide">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_03_F</span></div>
+            <figcaption><span class="plate-id">[PLATE_03_F]</span><span class="plate-caption">Aggregate section · long view · 1:50</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <footer class="proj-modal-footer">
+        <span>End of plates · 06 of 06 · UST-2023</span>
+        <button class="proj-modal-close-secondary" data-close>Return to folio ↩</button>
+      </footer>
+
+    </div>
+  </article>
+</div>
+
+
+<!-- ============================================================
+     CHAPTER DIVIDER — Part II · Professional Works
+     ============================================================ -->
+<div id="chapter-professional" class="chapter-divider reveal">
+  <span class="chapter-eyebrow">[ Part II ] · Practice &amp; Field</span>
+  <h2 class="chapter-title">Professional<br/>Works.</h2>
+  <p class="chapter-note">
+    Built, researched, and repaired — work measured against budgets, sites, and the people who actually use it.
+  </p>
+</div>
+
+
+<!-- ============================================================
      PROJECT 05 — MARGIN STUDIES (full-bleed image, no text overlap)
      ============================================================ -->
 <section id="proj-4" class="section relative" style="padding: 80px 0 200px;">
@@ -1104,11 +1730,30 @@
       <h2 class="font-display tracking-tightest" style="font-weight:300; font-size:64px; line-height:0.96;">
         Margin<br/>Studies.
       </h2>
+
+      <div class="rule-top mt-10 pt-6 grid grid-cols-2 gap-y-3 font-mono text-[11px]" style="color:var(--slate);">
+        <div class="smallcaps">Location</div><div style="color:var(--ink)">South Korea</div>
+        <div class="smallcaps">Year</div><div style="color:var(--ink)">2022 — 2023</div>
+        <div class="smallcaps">Program</div><div style="color:var(--ink)">Block Residue Research</div>
+        <div class="smallcaps">Instructor</div><div style="color:var(--ink)">Prof. Eun-Kwang Kim · NRN 13001144</div>
+        <div class="smallcaps">Role</div><div style="color:var(--ink)">Research Assistant</div>
+      </div>
     </div>
     <div class="col-span-4 col-start-7 reveal reveal-delay-1">
       <p class="text-[14px]" style="color:var(--charcoal); line-height:1.65;">
         A research sequence developed under Prof. Eun-Kwang Kim (NRN 13001144) that maps the unbuilt residual space of mid-density Korean blocks. The work became a small archive of fragments rather than a single proposal.
       </p>
+
+      <div class="mt-8">
+        <a href="#project-05-modal"
+           class="proj-cta"
+           data-modal-target="project-05-modal"
+           aria-haspopup="dialog">
+          <span class="label"><span class="arrow">▸</span> Open Project</span>
+          <span class="meta">06 Plates · Drawing Gallery</span>
+        </a>
+      </div>
+
       <div class="rule-top mt-6 pt-3 font-mono text-[11px]" style="color:var(--slate);">
         <span class="smallcaps">Years</span> &nbsp;·&nbsp;
         <span style="color:var(--ink)">2022 — 2023 · Research Assistant</span>
@@ -1121,7 +1766,8 @@
 
   <!-- full-bleed image (extends past page padding) -->
   <div class="reveal reveal-delay-2 px-12">
-    <div class="lens parallax" data-speed="0.12" style="aspect-ratio: 21 / 9;">
+    <div class="lens parallax" data-speed="0.12" style="aspect-ratio: 21 / 9;"
+         data-modal-target="project-05-modal" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Open project: Margin Studies">
       <img src="project4.jpg" alt="Margin Studies — block residue mapping" />
       <svg class="placeholder absolute inset-0 w-full h-full" viewBox="0 0 1050 450" preserveAspectRatio="xMidYMid slice" fill="none" stroke="rgba(26,26,28,0.32)" stroke-width="0.5">
         <g>
@@ -1137,6 +1783,88 @@
     </div>
   </div>
 </section>
+
+
+<!-- ============================================================
+     PROJECT 05 — DRAWING GALLERY MODAL (Margin Studies)
+     ============================================================ -->
+<div id="project-05-modal" class="proj-modal" role="dialog" aria-hidden="true" aria-labelledby="proj-05-modal-title">
+  <div class="proj-modal-backdrop" data-close></div>
+
+  <article class="proj-modal-panel">
+
+    <header class="proj-modal-header">
+      <div>
+        <div class="proj-modal-eyebrow">Folio № 02 · Project № 05 · Drawing Gallery</div>
+        <span id="proj-05-modal-title" class="proj-modal-title">Margin Studies — Block Residue, South Korea</span>
+      </div>
+      <button class="proj-modal-close" data-close aria-label="Close gallery">
+        <span>Close</span>
+        <span class="x">✕</span>
+      </button>
+    </header>
+
+    <div class="proj-modal-body">
+
+      <div class="proj-modal-lede">
+        <div class="smallcaps">A note from the research</div>
+        <p>
+          Six plates from a research sequence under Prof. Eun-Kwang Kim that maps the unbuilt residual space of mid-density Korean blocks. The work became a small archive of fragments rather than a single proposal; the plates are read as a catalogue, not an argument.
+        </p>
+      </div>
+
+      <section class="plate-section">
+        <header class="plate-section-header">
+          <div class="plate-section-index">i. Fragments</div>
+          <h3 class="plate-section-title">An archive of residue.</h3>
+          <div class="plate-section-count">03 plates · 1:200</div>
+        </header>
+        <div class="plate-grid">
+          <figure class="plate plate-wide">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_05_A</span></div>
+            <figcaption><span class="plate-id">[PLATE_05_A]</span><span class="plate-caption">Fragments A–D · block residue · 1:200</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_05_B</span></div>
+            <figcaption><span class="plate-id">[PLATE_05_B]</span><span class="plate-caption">Fragment B · figure-ground</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_05_C</span></div>
+            <figcaption><span class="plate-id">[PLATE_05_C]</span><span class="plate-caption">Fragment D · figure-ground</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="plate-section">
+        <header class="plate-section-header">
+          <div class="plate-section-index">ii. Mapping</div>
+          <h3 class="plate-section-title">The unbuilt, measured.</h3>
+          <div class="plate-section-count">03 plates · Survey</div>
+        </header>
+        <div class="plate-grid">
+          <figure class="plate">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_05_D</span></div>
+            <figcaption><span class="plate-id">[PLATE_05_D]</span><span class="plate-caption">Block survey · north sector</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_05_E</span></div>
+            <figcaption><span class="plate-id">[PLATE_05_E]</span><span class="plate-caption">Block survey · south sector</span></figcaption>
+          </figure>
+          <figure class="plate plate-wide">
+            <div class="plate-frame"><span class="plate-id-watermark">PLATE_05_F</span></div>
+            <figcaption><span class="plate-id">[PLATE_05_F]</span><span class="plate-caption">Residual-space composite · long view</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <footer class="proj-modal-footer">
+        <span>End of plates · 06 of 06 · MGS-2022.23</span>
+        <button class="proj-modal-close-secondary" data-close>Return to folio ↩</button>
+      </footer>
+
+    </div>
+  </article>
+</div>
 
 
 <!-- ============================================================
@@ -1160,9 +1888,29 @@
       <h2 class="font-display tracking-tightest" style="font-weight:300; font-size:64px; line-height:0.96;">
         House<br/>Repair, <span style="font-style:italic;">Uljin.</span>
       </h2>
+
+      <div class="rule-top mt-10 pt-6 grid grid-cols-2 gap-y-3 font-mono text-[11px]" style="color:var(--slate);">
+        <div class="smallcaps">Location</div><div style="color:var(--ink)">Uljin County, KR</div>
+        <div class="smallcaps">Year</div><div style="color:var(--ink)">2023 — 2024</div>
+        <div class="smallcaps">Program</div><div style="color:var(--ink)">Housing Repair · Community Service</div>
+        <div class="smallcaps">Office</div><div style="color:var(--ink)">TBD</div>
+        <div class="smallcaps">Role</div><div style="color:var(--ink)">Volunteer · Documentation &amp; Repair</div>
+      </div>
+
       <p class="text-[14px] mt-8" style="color:var(--charcoal); line-height:1.65;">
         Twelve months of weekend work documenting and repairing the homes of elderly residents in Uljin County. The drawings are not portfolio pieces; they are punch lists. Included here because a portfolio that excludes them is not honest about how I learned to build.
       </p>
+
+      <div class="mt-8">
+        <a href="#project-06-modal"
+           class="proj-cta"
+           data-modal-target="project-06-modal"
+           aria-haspopup="dialog">
+          <span class="label"><span class="arrow">▸</span> Open Project</span>
+          <span class="meta">06 Plates · Field Record</span>
+        </a>
+      </div>
+
       <div class="rule-top mt-8 pt-4 font-mono text-[11px]" style="color:var(--slate);">
         <span class="smallcaps">Period</span> &nbsp;·&nbsp;
         <span style="color:var(--ink)">Aug 2023 — Aug 2024</span>
@@ -1172,7 +1920,8 @@
     <!-- two stacked smaller frames -->
     <div class="col-span-5 col-start-8 grid grid-cols-2 gap-6">
       <div class="reveal reveal-delay-1">
-        <div class="lens parallax" data-speed="0.05" style="aspect-ratio: 3 / 4;">
+        <div class="lens parallax" data-speed="0.05" style="aspect-ratio: 3 / 4;"
+             data-modal-target="project-06-modal" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Open project: House Repair, Uljin">
           <img src="project5.jpg" alt="House repair — exterior" />
           <svg class="placeholder absolute inset-0 w-full h-full" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" fill="none" stroke="rgba(26,26,28,0.35)" stroke-width="0.5">
             <polygon points="60,120 240,120 240,360 60,360"/>
@@ -1184,7 +1933,8 @@
         </div>
       </div>
       <div class="reveal reveal-delay-2 pt-12">
-        <div class="lens parallax" data-speed="0.08" style="aspect-ratio: 3 / 4;">
+        <div class="lens parallax" data-speed="0.08" style="aspect-ratio: 3 / 4;"
+             data-modal-target="project-06-modal" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Open project: House Repair, Uljin">
           <img src="project6.jpg" alt="House repair — punch list" />
           <svg class="placeholder absolute inset-0 w-full h-full" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" fill="none" stroke="rgba(26,26,28,0.35)" stroke-width="0.5">
             <line x1="50" y1="60"  x2="250" y2="60"/>
@@ -1199,6 +1949,294 @@
           <span class="view-tab">View ↗</span>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     PROJECT 06 — FIELD RECORD MODAL (House Repair, Uljin)
+     ============================================================ -->
+<div id="project-06-modal" class="proj-modal" role="dialog" aria-hidden="true" aria-labelledby="proj-06-modal-title">
+  <div class="proj-modal-backdrop" data-close></div>
+
+  <article class="proj-modal-panel">
+
+    <header class="proj-modal-header">
+      <div>
+        <div class="proj-modal-eyebrow">Folio № 02 · Project № 06 · Field Record</div>
+        <span id="proj-06-modal-title" class="proj-modal-title">House Repair, Uljin — Field Record</span>
+      </div>
+      <button class="proj-modal-close" data-close aria-label="Close gallery">
+        <span>Close</span>
+        <span class="x">✕</span>
+      </button>
+    </header>
+
+    <div class="proj-modal-body">
+
+      <div class="proj-modal-lede">
+        <div class="smallcaps">A note from the field</div>
+        <p>
+          Six plates from twelve months of weekend work repairing the homes of elderly residents in Uljin County. These are not portfolio pieces; they are punch lists and field photographs. They are included because a portfolio that excludes them is not honest about how I learned to build.
+        </p>
+      </div>
+
+      <section class="plate-section">
+        <header class="plate-section-header">
+          <div class="plate-section-index">i. Field</div>
+          <h3 class="plate-section-title">Twelve households.</h3>
+          <div class="plate-section-count">03 plates · Photograph</div>
+        </header>
+        <div class="plate-grid">
+          <figure class="plate plate-wide">
+            <div class="plate-frame plate-frame-dark"><span class="plate-id-watermark">PLATE_06_A</span></div>
+            <figcaption><span class="plate-id">[PLATE_06_A]</span><span class="plate-caption">House 07 · north elevation · before</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame plate-frame-dark"><span class="plate-id-watermark">PLATE_06_B</span></div>
+            <figcaption><span class="plate-id">[PLATE_06_B]</span><span class="plate-caption">House 07 · roof condition</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame plate-frame-dark"><span class="plate-id-watermark">PLATE_06_C</span></div>
+            <figcaption><span class="plate-id">[PLATE_06_C]</span><span class="plate-caption">House 07 · after repair</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="plate-section">
+        <header class="plate-section-header">
+          <div class="plate-section-index">ii. Punch Lists</div>
+          <h3 class="plate-section-title">Drawings as instructions.</h3>
+          <div class="plate-section-count">03 plates · A4</div>
+        </header>
+        <div class="plate-grid">
+          <figure class="plate">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_06_D</span></div>
+            <figcaption><span class="plate-id">[PLATE_06_D]</span><span class="plate-caption">Punch list · House 07</span></figcaption>
+          </figure>
+          <figure class="plate">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_06_E</span></div>
+            <figcaption><span class="plate-id">[PLATE_06_E]</span><span class="plate-caption">Punch list · House 11</span></figcaption>
+          </figure>
+          <figure class="plate plate-wide">
+            <div class="plate-frame plate-frame-grid"><span class="plate-id-watermark">PLATE_06_F</span></div>
+            <figcaption><span class="plate-id">[PLATE_06_F]</span><span class="plate-caption">Repair schedule · 12 households</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <footer class="proj-modal-footer">
+        <span>End of plates · 06 of 06 · ULJ-2023.24</span>
+        <button class="proj-modal-close-secondary" data-close>Return to folio ↩</button>
+      </footer>
+
+    </div>
+  </article>
+</div>
+
+
+<!-- ============================================================
+     INDEX / ARCHIVE — Appendix · Complete Works
+     A back-of-monograph catalogue: dense, tabular, tiny monochrome
+     thumbnails on active works (placeholder src — replace manually).
+     ============================================================ -->
+<section id="index-archive" class="section relative rule-top" style="padding: 160px 180px 160px;">
+
+  <!-- scoped technical styling for the catalogue rows -->
+  <style>
+    #index-archive .idx-head,
+    #index-archive .idx-row{
+      display: grid;
+      grid-template-columns: 46px 0.5fr 1.2fr 3.4fr 2.4fr 2.2fr;
+      gap: 24px;
+      align-items: center;
+    }
+    #index-archive .idx-row{
+      padding: 11px 0;
+      border-bottom: 0.5px solid var(--rule);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      color: var(--slate);
+      text-decoration: none;
+      transition: color 0.35s ease,
+                  padding-left 0.45s cubic-bezier(.2,.7,.2,1);
+    }
+    #index-archive a.idx-row:hover{ color: var(--ink); padding-left: 14px; }
+    #index-archive .idx-num{ color: var(--slate-2); }
+    /* tiny uniform monochrome catalogue thumbnails */
+    #index-archive .idx-thumb{
+      width: 46px; height: 32px;
+      object-fit: cover; object-position: center;
+      display: block;
+      background: var(--paper-3);
+      border: 0.5px solid var(--rule-strong);
+      filter: grayscale(1) contrast(1.05) brightness(0.98);
+      transition: filter 0.45s cubic-bezier(.2,.7,.2,1);
+    }
+    #index-archive a.idx-row:hover .idx-thumb{ filter: grayscale(0) contrast(1.03); }
+    /* archived rows: a hatched empty plate marker instead of an image */
+    #index-archive .idx-thumb-empty{
+      width: 46px; height: 32px;
+      border: 0.5px dashed var(--rule-strong);
+      background:
+        repeating-linear-gradient(45deg,
+          var(--rule) 0, var(--rule) 0.5px,
+          transparent 0.5px, transparent 6px);
+    }
+    #index-archive a.idx-row .idx-title{ color: var(--ink); }
+    #index-archive a.idx-row:hover .idx-title{ color: var(--accent); }
+    #index-archive .idx-arrow{
+      display: inline-block; margin-left: 6px;
+      opacity: 0; transform: translateX(-6px);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(.2,.7,.2,1);
+    }
+    #index-archive a.idx-row:hover .idx-arrow{ opacity: 1; transform: translateX(0); }
+    /* archived / placeholder lines: dimmer, non-interactive, text-only */
+    #index-archive .idx-row.is-archived{ color: var(--slate-2); cursor: default; }
+    #index-archive .idx-row.is-archived .idx-title{ color: var(--slate); }
+    #index-archive .idx-tag{
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--slate-2);
+    }
+  </style>
+
+  <div class="grid grid-cols-12 gap-10">
+
+    <!-- vertical margin annotation -->
+    <div class="col-span-1">
+      <div class="annotate-v">§ Index · Appendix</div>
+    </div>
+
+    <div class="col-span-10 col-start-2">
+
+      <!-- section masthead -->
+      <div class="flex items-end justify-between rule-bottom pb-6 mb-1 reveal">
+        <div>
+          <div class="smallcaps mb-3">§ Index · Complete Works 2022–2026</div>
+          <h2 class="font-display tracking-display" style="font-weight:200; font-size:64px; line-height:0.96;">
+            Appendix.
+          </h2>
+        </div>
+        <div class="font-mono text-[11px] uppercase tracking-[0.16em] text-right" style="color:var(--slate); line-height:1.8;">
+          09 entries · 05 active · 04 archived<br/>
+          Cat. № SJ-FOLIO-02
+        </div>
+      </div>
+
+      <!-- column key -->
+      <div class="idx-head smallcaps reveal reveal-delay-1"
+           style="padding: 12px 0; border-bottom: 0.5px solid var(--rule-strong);">
+        <div>Fig.</div>
+        <div>No.</div>
+        <div>Year</div>
+        <div>Title / Designation</div>
+        <div>Location</div>
+        <div>Typology</div>
+      </div>
+
+      <!-- catalogue body -->
+      <div class="reveal reveal-delay-2">
+
+        <!-- 01 — active -->
+        <a href="#proj-1" class="idx-row">
+          <img class="idx-thumb" src="[INSERT_IMAGE_HERE]" alt="TBD" />
+          <div class="idx-num">01</div>
+          <div>2026</div>
+          <div><span class="idx-title">The Last Archive</span><span class="idx-arrow">↗</span></div>
+          <div>New York, US</div>
+          <div>Media Archive</div>
+        </a>
+
+        <!-- 02 — active -->
+        <a href="#proj-2" class="idx-row">
+          <img class="idx-thumb" src="[INSERT_IMAGE_HERE]" alt="TBD" />
+          <div class="idx-num">02</div>
+          <div>2025</div>
+          <div><span class="idx-title">Off Grid</span><span class="idx-arrow">↗</span></div>
+          <div>Los Angeles, US</div>
+          <div>Mid-rise Typology</div>
+        </a>
+
+        <!-- 03 — active -->
+        <a href="#proj-3" class="idx-row">
+          <img class="idx-thumb" src="[INSERT_IMAGE_HERE]" alt="TBD" />
+          <div class="idx-num">03</div>
+          <div>2023</div>
+          <div><span class="idx-title">Urban Stitch</span><span class="idx-arrow">↗</span></div>
+          <div>Los Angeles, US</div>
+          <div>Single-Occupancy</div>
+        </a>
+
+        <!-- 04 — archived (explains the gap in the canonical numbering) -->
+        <div class="idx-row is-archived">
+          <div class="idx-thumb-empty"></div>
+          <div class="idx-num">04</div>
+          <div>2024</div>
+          <div><span class="idx-title">Coastal Threshold</span> <span class="idx-tag">— withdrawn</span></div>
+          <div>Busan, KR</div>
+          <div>Competition · Archived</div>
+        </div>
+
+        <!-- 05 — active (Margin Studies) -->
+        <a href="#proj-4" class="idx-row">
+          <img class="idx-thumb" src="[INSERT_IMAGE_HERE]" alt="TBD" />
+          <div class="idx-num">05</div>
+          <div>2022–23</div>
+          <div><span class="idx-title">Margin Studies</span><span class="idx-arrow">↗</span></div>
+          <div>South Korea</div>
+          <div>Block Research</div>
+        </a>
+
+        <!-- 06 — active (House Repair, Uljin) -->
+        <a href="#proj-5" class="idx-row">
+          <img class="idx-thumb" src="[INSERT_IMAGE_HERE]" alt="TBD" />
+          <div class="idx-num">06</div>
+          <div>2023–24</div>
+          <div><span class="idx-title">House Repair, Uljin</span><span class="idx-arrow">↗</span></div>
+          <div>Uljin, KR</div>
+          <div>Community Repair</div>
+        </a>
+
+        <!-- 07 — archived placeholder -->
+        <div class="idx-row is-archived">
+          <div class="idx-thumb-empty"></div>
+          <div class="idx-num">07</div>
+          <div>2022</div>
+          <div><span class="idx-title">South Port — Future Ideas Busan</span> <span class="idx-tag">— 3rd prize</span></div>
+          <div>Busan, KR</div>
+          <div>Waterfront · Archived</div>
+        </div>
+
+        <!-- 08 — archived placeholder -->
+        <div class="idx-row is-archived">
+          <div class="idx-thumb-empty"></div>
+          <div class="idx-num">08</div>
+          <div>2023</div>
+          <div><span class="idx-title">Daegu International Entry</span> <span class="idx-tag">— mentioned</span></div>
+          <div>Daegu, KR</div>
+          <div>Civic · Archived</div>
+        </div>
+
+        <!-- 09 — archived placeholder -->
+        <div class="idx-row is-archived">
+          <div class="idx-thumb-empty"></div>
+          <div class="idx-num">09</div>
+          <div>2021</div>
+          <div><span class="idx-title">Sectional House Studies</span></div>
+          <div>Gyeongsan, KR</div>
+          <div>Housing · Study</div>
+        </div>
+
+      </div>
+
+      <!-- colophon line -->
+      <div class="rule-top mt-6 pt-4 font-mono text-[11px] flex items-center justify-between" style="color:var(--slate);">
+        <span><span class="meter-dot"></span> End of index · entries cross-referenced to plates</span>
+        <span class="smallcaps">SJ · MMXXII—MMXXVI</span>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1437,7 +2475,7 @@
 <script>
   /* ---------- LOADER ---------- */
   window.addEventListener('load', () => {
-    setTimeout(() => document.getElementById('loader').classList.add('done'), 1100);
+    setTimeout(() => document.getElementById('loader').classList.add('done'), 1000);
   });
 
   /* ---------- CLOCK ---------- */
@@ -1551,14 +2589,37 @@
 
   /* ---------- PROJECT DETAIL MODAL ---------- */
   const modalTriggers = document.querySelectorAll('[data-modal-target]');
+  let creaseTimer = null;   // pending "flip to last page" scroll, so we can cancel it
+
   function openModal(modal){
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('modal-open');
     const closer = modal.querySelector('.proj-modal-close');
     if(closer) setTimeout(() => closer.focus(), 120);
+
+    /* ---- "Creased Page" scroll restoration ---- */
+    const panel = modal.querySelector('.proj-modal-panel');
+    if(panel){
+      panel.scrollTop = 0;                       // always flip open at the very top
+      clearTimeout(creaseTimer);
+      let saved = 0;
+      try{ saved = parseInt(localStorage.getItem('scrollPos-' + modal.id), 10) || 0; }catch(e){}
+      if(saved > 0){
+        // after the panel has slid in (~0.8s), smooth-scroll to the last page read
+        creaseTimer = setTimeout(() => {
+          panel.scrollTo({ top: saved, behavior: 'smooth' });
+        }, 800);
+      }
+    }
   }
   function closeModal(modal){
+    /* ---- remember the page we were on before closing ---- */
+    const panel = modal.querySelector('.proj-modal-panel');
+    if(panel){
+      clearTimeout(creaseTimer);
+      try{ localStorage.setItem('scrollPos-' + modal.id, String(panel.scrollTop)); }catch(e){}
+    }
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('modal-open');
@@ -1598,6 +2659,126 @@
       img.style.display = 'none';
     }
   });
+
+  /* ---------- DARK MODE TOGGLE (Day / Night edition) ---------- */
+  (function(){
+    const STORAGE_KEY = 'sj-folio-mode';
+    const root   = document.documentElement;
+    const toggle = document.getElementById('mode-toggle');
+    if(!toggle) return;
+    const glyph  = toggle.querySelector('.mode-glyph');
+    const label  = toggle.querySelector('.mode-label');
+
+    function apply(mode){
+      const dark = (mode === 'dark');
+      root.classList.toggle('dark', dark);
+      if(glyph) glyph.textContent = dark ? '☾' : '☼';
+      if(label) label.textContent = dark ? 'Night' : 'Day';
+      toggle.setAttribute('aria-pressed', String(dark));
+    }
+
+    // sync the button to whatever state was set pre-paint in <head>
+    apply(root.classList.contains('dark') ? 'dark' : 'light');
+
+    toggle.addEventListener('click', () => {
+      const next = root.classList.contains('dark') ? 'light' : 'dark';
+      try{ localStorage.setItem(STORAGE_KEY, next); }catch(e){}
+      apply(next);
+    });
+  })();
+
+  /* ---------- LIGHTBOX (gallery detail inspector) ---------- */
+  (function(){
+    // build the overlay once and reuse it
+    const lb = document.createElement('div');
+    lb.className = 'lightbox';
+    lb.setAttribute('role', 'dialog');
+    lb.setAttribute('aria-modal', 'true');
+    lb.setAttribute('aria-hidden', 'true');
+    lb.innerHTML =
+      '<button class="lightbox-close" type="button" aria-label="Close detail view">' +
+        '<span>Close</span><span class="x" aria-hidden="true">✕</span></button>' +
+      '<img alt="" />' +
+      '<div class="lightbox-caption"></div>';
+    document.body.appendChild(lb);
+
+    const lbImg   = lb.querySelector('img');
+    const lbCap   = lb.querySelector('.lightbox-caption');
+    const lbClose = lb.querySelector('.lightbox-close');
+
+    function open(src, caption, alt){
+      lbImg.src = src;
+      lbImg.alt = alt || caption || 'Gallery detail';
+      lbCap.textContent = caption || '';
+      lb.classList.add('open');
+      lb.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');   // reuse the scroll-lock
+      setTimeout(() => lbClose.focus(), 80);
+    }
+    function close(){
+      lb.classList.remove('open');
+      lb.setAttribute('aria-hidden', 'true');
+      // keep the scroll-lock only if a project modal is still open underneath
+      if(!document.querySelector('.proj-modal.open')){
+        document.body.classList.remove('modal-open');
+      }
+      // drop the (potentially large) source once the fade-out finishes
+      setTimeout(() => { if(!lb.classList.contains('open')) lbImg.removeAttribute('src'); }, 460);
+    }
+
+    // Event-delegated: works for ANY <img> inside a gallery panel — including
+    // images you add later via the [INSERT_IMAGE_HERE] placeholder. No re-wiring.
+    document.addEventListener('click', (e) => {
+      const img = e.target.closest && e.target.closest('img');
+      if(!img || !img.closest('.proj-modal-panel')) return;
+      e.preventDefault();
+      // prefer an explicit hi-res source (data-full) for native-resolution inspection
+      const full = img.getAttribute('data-full') || img.currentSrc || img.src;
+      // borrow the plate's caption if one exists
+      let cap = '';
+      const fig = img.closest('figure');
+      if(fig){ const c = fig.querySelector('.plate-caption'); if(c) cap = c.textContent.trim(); }
+      open(full, cap, img.alt);
+    });
+
+    // close on matte click (not when clicking the image itself) or the button
+    lb.addEventListener('click', (e) => { if(e.target === lb) close(); });
+    lbClose.addEventListener('click', close);
+
+    // ESC — capture phase so the lightbox closes BEFORE the project modal's own
+    // ESC handler runs, leaving the gallery panel open underneath.
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && lb.classList.contains('open')){
+        close();
+        e.stopImmediatePropagation();
+      }
+    }, true);
+  })();
+
+  /* ---------- GALLERY IMAGE PIPELINE (lazy-load + blur-up) ---------- */
+  (function(){
+    function wire(img){
+      const frame = img.closest('.plate-frame');
+      const mark  = frame ? frame.querySelector('.plate-id-watermark') : null;
+      const reveal = () => {
+        img.classList.add('is-loaded');
+        if(frame) frame.classList.remove('is-loading');
+        if(mark)  mark.style.visibility = 'hidden';   // image now covers the slot
+      };
+      const fail = () => {
+        // placeholder / invalid path → degrade to the watermark, no broken icon
+        img.style.display = 'none';
+        if(frame) frame.classList.remove('is-loading');
+        if(mark)  mark.style.visibility = '';
+      };
+      if(img.complete && img.naturalWidth > 0){ reveal(); return; }
+      if(img.complete && img.naturalWidth === 0 && img.getAttribute('src')){ /* may still error */ }
+      if(frame) frame.classList.add('is-loading');
+      img.addEventListener('load',  () => { img.naturalWidth > 0 ? reveal() : fail(); });
+      img.addEventListener('error', fail);
+    }
+    document.querySelectorAll('.proj-modal-panel img.plate-img').forEach(wire);
+  })();
 </script>
 
 </body>
