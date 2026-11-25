@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $testRoot = Join-Path $root ('.local-editor\test-' + [Guid]::NewGuid().ToString('N'))
 [IO.Directory]::CreateDirectory($testRoot) | Out-Null
@@ -52,6 +52,7 @@ try {
     try { Invoke-RestMethod 'http://localhost:8766/api/data' -Headers @{Origin='http://untrusted.example'} | Out-Null } catch { $rejected = [int]$_.Exception.Response.StatusCode -eq 403 }
     Assert $rejected 'Cross-origin access rejected'
     $chrome = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+    if (-not (Test-Path -LiteralPath $chrome)) { $chrome = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe' }
     $browser = Start-Process $chrome -ArgumentList @('--headless=new','--remote-debugging-port=9227',('--user-data-dir="'+(Join-Path $testRoot 'browser')+'"'),'--no-first-run','--no-default-browser-check','about:blank') -WindowStyle Hidden -PassThru -RedirectStandardError (Join-Path $testRoot 'browser.log')
     Start-Sleep -Milliseconds 1500
     $target = Invoke-RestMethod 'http://localhost:9227/json/new?about:blank' -Method Put
@@ -81,6 +82,16 @@ try {
     Evaluate 'const select=document.getElementById("project");select.value="4";select.dispatchEvent(new Event("change"));' | Out-Null
     Assert (Evaluate 'document.querySelectorAll("#cover-slot option").length===2') 'Two-image project exposes separate main image slots'
     Evaluate 'document.getElementById("project").value="0";document.getElementById("project").dispatchEvent(new Event("change"));' | Out-Null
+    Assert (Evaluate 'PortfolioVideo.parse("https://youtu.be/M7lc1UVf-VE").url==="https://www.youtube.com/watch?v=M7lc1UVf-VE" && PortfolioVideo.parse("https://youtube.com/shorts/M7lc1UVf-VE")!==null') 'YouTube share and Shorts links normalized'
+    Assert (Evaluate 'PortfolioVideo.parse("https://vimeo.com/123456/abc123").embed.includes("&h=abc123") && PortfolioVideo.parse("https://player.vimeo.com/video/123456?h=abc123").url==="https://vimeo.com/123456/abc123"') 'Vimeo private link hash preserved'
+    Assert (Evaluate '[ "javascript:alert(1)", "https://youtube.com.evil.test/watch?v=M7lc1UVf-VE", "https://youtube.com/watch?v=bad", "https://evil.test/video.mp4" ].every(url=>PortfolioVideo.parse(url)===null)') 'Unsupported and unsafe URLs rejected'
+    Evaluate 'document.getElementById("video-url").value="https://youtu.be/M7lc1UVf-VE";document.getElementById("add-video").click()' | Out-Null
+    Wait-Js 'document.querySelector(".video-play img")'
+    Assert (Evaluate 'document.querySelectorAll(".card").length===7 && document.querySelector(".video-play img").src.includes("i.ytimg.com/vi/M7lc1UVf-VE/")') 'Video link adds a thumbnail card'
+    Evaluate 'document.querySelector(".video-play").click()' | Out-Null
+    Assert (Evaluate 'document.querySelector(".video-media iframe").src.includes("autoplay=1")') 'Click loads inline autoplay player'
+    Evaluate 'document.querySelector(".video-stop").click()' | Out-Null
+    Assert (Evaluate '!document.querySelector(".video-media iframe") && document.activeElement.classList.contains("video-play")') 'Close removes player and restores keyboard focus'
     Evaluate 'document.getElementById("preview").click()' | Out-Null
     Wait-Js 'document.getElementById("preview-frame").contentDocument?.querySelector(".project-gallery .plate-img")'
     Assert (Evaluate 'document.getElementById("preview-frame").contentDocument.querySelector(".project-gallery .plate-caption").textContent !== undefined') 'Unsaved preview renders project gallery'
@@ -89,6 +100,12 @@ try {
     $saved = Invoke-RestMethod 'http://localhost:8766/api/data'
     Assert ($saved.data.projects[0].sections[0].images[1].caption -like '*caption*') 'Saved data keeps order and Unicode captions'
     Assert ($saved.data.projects[0].cover.src -eq $saved.data.projects[0].sections[0].images[1].src) 'Cover shares the gallery image reference'
+    Assert ($saved.data.projects[0].sections[0].images[6].videoUrl -eq 'https://www.youtube.com/watch?v=M7lc1UVf-VE') 'Video URL survives save'
+    $invalid = $saved.data | ConvertTo-Json -Depth 30 | ConvertFrom-Json
+    $invalid.projects[0].sections[0].images[6].videoUrl = 'https://evil.test/video'
+    $rejected = $false
+    try { Invoke-RestMethod 'http://localhost:8766/api/save' -Method Post -Headers @{'X-Editor-Token'=$saved.token} -ContentType 'application/json' -Body (@{data=$invalid;version=$saved.version}|ConvertTo-Json -Depth 30) | Out-Null } catch { $rejected = [int]$_.Exception.Response.StatusCode -eq 400 }
+    Assert $rejected 'Server rejects unsupported video URL'
     Assert (Test-Path -LiteralPath (Join-Path $testRoot '.local-editor\portfolio-media.previous.js')) 'Previous save backup created'
     $rejected = $false
     try { Invoke-RestMethod 'http://localhost:8766/api/save' -Method Post -Headers @{'X-Editor-Token'=$initial.token} -ContentType 'application/json' -Body (@{data=$initial.data;version=$initial.version}|ConvertTo-Json -Depth 30) | Out-Null } catch { $rejected = [int]$_.Exception.Response.StatusCode -eq 409 }
@@ -115,6 +132,12 @@ try {
     Cdp 'Input.dispatchKeyEvent' @{type='keyDown';key='Escape';code='Escape';windowsVirtualKeyCode=27} | Out-Null
     Wait-Js '!document.querySelector(".image-viewer").open && document.activeElement.classList.contains("image-zoom")'
     Assert $true 'Escape closes image and restores focus'
+    Assert (Evaluate 'document.querySelectorAll(".video-play").length===1') 'Saved video renders on public project'
+    Evaluate 'document.querySelector(".video-play").click()' | Out-Null
+    Assert (Evaluate 'document.querySelector(".video-media iframe").src.includes("youtube-nocookie.com/embed/M7lc1UVf-VE")') 'Public video opens inline'
+    Evaluate 'document.querySelector(".video-stop").click()' | Out-Null
+    Cdp 'Emulation.setDeviceMetricsOverride' @{width=390;height=844;deviceScaleFactor=1;mobile=$true} | Out-Null
+    Assert (Evaluate 'document.documentElement.scrollWidth<=innerWidth') 'Mobile project fits viewport'
     Assert (Evaluate 'window.__errors.length===0') 'No public gallery JavaScript errors'
     Write-Host "All checks passed. Test workspace: $testRoot"
 } finally {

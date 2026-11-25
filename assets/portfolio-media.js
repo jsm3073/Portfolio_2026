@@ -17,7 +17,7 @@ window.PORTFOLIO_MEDIA = {
                                               "images":  [
                                                              {
                                                                  "id":  "p01-image-1",
-                                                                 "src":  "",
+                                                                 "src":  "image/uploads/project-01/63bc498ae0694d26b9b33bab13eea3bb.png",
                                                                  "caption":  "Hudson façade · dusk · approach view",
                                                                  "alt":  "",
                                                                  "layout":  "wide",
@@ -25,7 +25,7 @@ window.PORTFOLIO_MEDIA = {
                                                              },
                                                              {
                                                                  "id":  "p01-image-2",
-                                                                 "src":  "",
+                                                                 "src":  "image/uploads/project-01/693ef85a95fb413b9020c9cf036e87bf.png",
                                                                  "caption":  "High Line threshold · noon",
                                                                  "alt":  "",
                                                                  "layout":  "half",
@@ -43,6 +43,16 @@ window.PORTFOLIO_MEDIA = {
                                                                  "id":  "p01-image-4",
                                                                  "src":  "",
                                                                  "caption":  "River elevation · long view · 1:500",
+                                                                 "alt":  "",
+                                                                 "layout":  "wide",
+                                                                 "fit":  "contain"
+                                                             },
+                                                             {
+                                                                 "id":  "31c3432d-cec5-4907-a1e9-f903ee068853",
+                                                                 "type":  "video",
+                                                                 "videoUrl":  "https://vimeo.com/1233791156",
+                                                                 "src":  "",
+                                                                 "caption":  "",
                                                                  "alt":  "",
                                                                  "layout":  "wide",
                                                                  "fit":  "contain"

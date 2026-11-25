@@ -1,4 +1,4 @@
-﻿param([int]$Port = 8765, [switch]$OpenBrowser)
+param([int]$Port = 8765, [switch]$OpenBrowser)
 $ErrorActionPreference = 'Stop'
 $root = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $dataPath = Join-Path $root 'assets\portfolio-media.js'
@@ -45,6 +45,10 @@ function Check-Data($data) {
             foreach ($item in $section.images) {
                 if ($item.id -notmatch '^[a-zA-Z0-9_-]{1,80}$' -or $imageIds.ContainsKey($item.id)) { throw 'Invalid or duplicate image ID.' }
                 $imageIds[$item.id] = $true
+                if ($item.type -eq 'video') {
+                    Check-Text $item.videoUrl 2000
+                    if ($item.src -ne '' -or $item.videoUrl -cnotmatch '^https://(www\.youtube\.com/watch\?v=[a-zA-Z0-9_-]{11}|vimeo\.com/[0-9]+(/[a-zA-Z0-9]+)?)$') { throw 'Use a valid YouTube or Vimeo video link.' }
+                } elseif ($item.type -and $item.type -ne 'image') { throw 'Invalid media type.' }
                 Check-Source $item.src
                 Check-Text $item.caption 2000
                 Check-Text $item.alt 500

@@ -91,16 +91,28 @@
         event.preventDefault(); move(section().images.findIndex(image => image.id === id), index);
       });
       const picture = node('div', 'card-image');
-      if (item.src) {
+      if (item.type === 'video') {
+        window.PortfolioVideo.mount(picture, item);
+      } else if (item.src) {
         const img = node('img'); img.src = '/' + item.src.replace(/^\.\//, ''); img.alt = item.alt || item.caption; img.loading = 'lazy'; picture.append(img);
       } else picture.textContent = '사진을 넣을 빈 프레임';
       const fields = node('div', 'card-fields');
       fields.append(field('캡션', item, 'caption'), field('이미지 설명 (접근성)', item, 'alt'));
       const layout = node('div', 'two-up');
       layout.append(field('배치', item, 'layout', [['wide','한 줄 전체'],['half','반 너비 · 두 장 나란히']]), field('표시', item, 'fit', [['contain','전체 보이기 · 도면 권장'],['cover','프레임 채우기 · 크롭']])); fields.append(layout);
+      if (item.type === 'video') {
+        const label = node('label', '', '비디오 링크');
+        const input = node('input'); input.type = 'url'; input.maxLength = 2000; input.value = item.videoUrl;
+        input.addEventListener('change', () => {
+          const video = window.PortfolioVideo.parse(input.value);
+          if (!video) { input.value = item.videoUrl; notice('YouTube 또는 Vimeo 영상 링크를 입력해 주세요.', true); return; }
+          item.videoUrl = video.url; changed(); drawCards();
+        });
+        label.append(input); fields.append(label);
+      }
       const actions = node('div', 'card-actions');
-      actions.append(button(item.src ? '사진 교체' : '사진 넣기', () => { replacement = item; $('replace-file').click(); }));
-      if (item.src) actions.append(button('대표 이미지로', () => { project().cover = {src:item.src, alt:item.alt || item.caption || project().title}; coverIndex = 0; drawCover(); changed(); }));
+      if (item.type !== 'video') actions.append(button(item.src ? '사진 교체' : '사진 넣기', () => { replacement = item; $('replace-file').click(); }));
+      if (item.type !== 'video' && item.src) actions.append(button('대표 이미지로', () => { project().cover = {src:item.src, alt:item.alt || item.caption || project().title}; coverIndex = 0; drawCover(); changed(); }));
       actions.append(button('목록에서 제거', () => {
         removed.push({projectId:project().id, sectionIndex, index, item}); section().images.splice(index, 1); changed(); drawCards();
         notice('목록에서 제거했습니다. 원본은 남아 있습니다. ‘제거 취소’로 되돌릴 수 있습니다.');
@@ -139,6 +151,14 @@
     } catch (error) { notice(`${error.message}${completed ? ` 앞의 ${completed}장은 추가되어 있습니다.` : ''}`, true); }
     finally { busy = false; drawCover(); drawCards(); }
   }
+  $('add-video').addEventListener('click', () => {
+    if (busy || !data) return;
+    const video = window.PortfolioVideo.parse($('video-url').value);
+    if (!video) { notice('YouTube 또는 Vimeo 영상 링크를 입력해 주세요.', true); $('video-url').focus(); return; }
+    section().images.push({id:crypto.randomUUID(), type:'video', videoUrl:video.url, src:'', caption:'', alt:'', layout:'wide', fit:'contain'});
+    $('video-url').value = ''; changed(); drawCards();
+  });
+  $('video-url').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); $('add-video').click(); } });
   $('project').addEventListener('change', () => { projectIndex = Number($('project').value); sectionIndex = 0; coverIndex = 0; drawProject(); });
   $('section').addEventListener('change', () => { sectionIndex = Number($('section').value); drawSection(); });
   $('section-title').addEventListener('input', () => { section().title = $('section-title').value; $('section').selectedOptions[0].textContent = section().title; changed(); });

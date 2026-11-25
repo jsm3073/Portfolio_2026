@@ -45,7 +45,9 @@
           count++;
           const figure = element('figure', `plate${item.layout === 'wide' ? ' plate-wide' : ''}`);
           const frame = element('div', 'plate-frame');
-          if (item.src) {
+          if (item.type === 'video') {
+            window.PortfolioVideo.mount(frame, item);
+          } else if (item.src) {
             const button = element('button', 'image-zoom'); button.type = 'button';
             button.setAttribute('aria-label', `Enlarge ${item.alt || item.caption || 'image ' + count}`);
             button.setAttribute('aria-haspopup', 'dialog');
